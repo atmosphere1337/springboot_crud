@@ -3,6 +3,7 @@ package com.example.demo;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -74,7 +75,15 @@ public class MyController {
 	}
 	*/
 
+	/*
+	 *	Security module makes csrf and redirect to auth page 
+	 *	SecurityConfiguration.java will make it work 
+	 *	but it is better to not use that one
+	 */
+
+	@Autowired
 	private UserRepository userRepo;
+	@Autowired
 	private CityRepository cityRepo;
 	@GetMapping("/login")
 	public String loginGet() {
@@ -87,7 +96,6 @@ public class MyController {
 	}
 
 
-	/*
 	@PostMapping("/login/process")
 	public RedirectView loginPost ( @RequestParam("login") String login,
 								    @RequestParam("password") String password,
@@ -102,30 +110,30 @@ public class MyController {
 		session.setAttribute("id", users.get(0));
 		return new RedirectView("/page");
 	}
-	*/
-	@PostMapping("/login/process")
-	public String test() {
-		return "page";
-	}
 
 	@PostMapping("/register/process")
 	public RedirectView registerPost(@RequestParam("login") String login, @RequestParam("password") String password)  {
 		User newUser = new User();
 		if (!validateUserInput(login, password))
-			return new RedirectView("/login");
+			return new RedirectView("/register");
 		newUser.setLogin(login);
 		newUser.setPassword(password);
 		if (!validateUserExists(newUser))
-			return new RedirectView("/login");
+			return new RedirectView("/register");
 		userRepo.save(newUser);
-		return new RedirectView("/register");
+		return new RedirectView("/login");
 
 	}
 	
 	@GetMapping("/page")
-	public String pageGet(Model model) {
+	public String pageGet(Model model, HttpSession session) {
+		if (null == session.getAttribute("id")) {
+			
+		}
+			
 		Iterable<City> allCities = cityRepo.findAll();
 		model.addAttribute("context", allCities);
+		//model.addAttribute("id", session.getAttribute("id"));
 		return "page";
 	}
 	
@@ -170,18 +178,20 @@ public class MyController {
 	) {
 		cityRepo.deleteById(id);
 		return new RedirectView("/page");
-		
 	}
 
 	private boolean validateUserInput(String login, String password) {
 		return true;
 	}
+
 	private boolean validateUserExists(User user) {
 		return true;
 	}
+
 	private boolean validateCityInput(String city, String country, Integer population) { 
 		return true;
 	}
+
 	/*
 	private boolean validateCityExsist(City city) {
 		return true;

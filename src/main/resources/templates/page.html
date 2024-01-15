@@ -5,13 +5,12 @@
 		<div> Thymeleaf </div>
 		<table border="1">
 			<tr th:each="gorod : ${context}" >
-				<tr th:text = " ${gorod.getId()} " /> 	
-				<tr th:text = " ${gorod.getCity()} " /> 	
-				<tr th:text = " ${gorod.getCountry()} " /> 	
-				<tr th:text = " ${gorod.getPopulation()} " /> 	
+				<td th:text = " ${gorod.getId()} " /> 	
+				<td th:text = " ${gorod.getCity()} " /> 	
+				<td th:text = " ${gorod.getCountry()} " /> 	
+				<td th:text = " ${gorod.getPopulation()} " /> 	
 			</tr>
 		</table>
-			
 		<form method="POST" action="/page/add">
 			<table>
 				<tr>
