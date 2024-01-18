@@ -85,8 +85,15 @@ public class MyController {
 	private UserRepository userRepo;
 	@Autowired
 	private CityRepository cityRepo;
+
 	@GetMapping("/login")
-	public String loginGet() {
+	public String loginGet(
+			@CookieValue(value="login", defaultValue="") String login,
+			@CookieValue(value="password", defaultValue="") String password,
+			Model model
+	) {
+		model.addAttribute("login", login);
+		model.addAttribute("password", password);
 		return "login";
 	}
 
@@ -95,11 +102,19 @@ public class MyController {
 		return "register";
 	}
 
+	@GetMapping("/logout")
+	public RedirectView logout(HttpSession session) {
+		session.removeAttribute("id");
+		return new RedirectView("/login");
+		
+	}
+
 
 	@PostMapping("/login/process")
 	public RedirectView loginPost ( @RequestParam("login") String login,
 								    @RequestParam("password") String password,
-								    HttpSession session ) {
+								    HttpSession session,
+								    HttpServletResponse response) {
 		if (!validateUserInput(login, password)) {
 			return new RedirectView("/login");
 		}
@@ -107,7 +122,13 @@ public class MyController {
 		if (users.size() == 0) {
 			return new RedirectView("/login");
 		}
-		session.setAttribute("id", users.get(0));
+		session.setAttribute("id", users.get(0).getId());
+		Cookie cock1 = new Cookie("login", users.get(0).getLogin());
+		Cookie cock2 = new Cookie("password", users.get(0).getPassword());
+		cock1.setMaxAge(20);
+		cock2.setMaxAge(20);
+		response.addCookie(cock1);
+		response.addCookie(cock2);
 		return new RedirectView("/page");
 	}
 
@@ -127,13 +148,14 @@ public class MyController {
 	
 	@GetMapping("/page")
 	public String pageGet(Model model, HttpSession session) {
-		if (null == session.getAttribute("id")) {
-			
+		if (null != session.getAttribute("id")) {
+			Optional<User> usr = userRepo.findById( Integer.parseInt(session.getAttribute("id").toString()) );
+			String loginstr = usr.get().getLogin();
+			model.addAttribute("view_id", loginstr);
 		}
 			
 		Iterable<City> allCities = cityRepo.findAll();
 		model.addAttribute("context", allCities);
-		//model.addAttribute("id", session.getAttribute("id"));
 		return "page";
 	}
 	

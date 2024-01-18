@@ -2,7 +2,10 @@
 	<head>
 	</head>
 	<body>
-		<div> Thymeleaf </div>
+		<div>
+			Welcome,
+			<span th:text = "${view_id}"></spean>
+		</div>
 		<table border="1">
 			<tr th:each="gorod : ${context}" >
 				<td th:text = " ${gorod.getId()} " /> 	
@@ -120,5 +123,10 @@
 			</table>
 		</form>
 	</body>
+	<div>
+		<a href="/logout">
+			Logout
+		</a>
+	<div>
 	
 </html>
